@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -188,8 +188,9 @@ MonoBehaviour:
   bounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 10, y: 10, z: 10}
-  cellSize: 0.2
+  cellSize: 0.05
   gridSize: {x: 0, y: 0, z: 0}
+  charges: []
 --- !u!4 &75435560
 Transform:
   m_ObjectHideFlags: 0
@@ -243,6 +244,8 @@ MonoBehaviour:
   propagationShader: {fileID: 4800000, guid: 70481d925eab65d4d9961d2c90847493, type: 3}
   propagationMat: {fileID: 0}
   debugTexture: {fileID: 0}
+  oscillationSpeed: 2
+  oscillationAmplitude: 0.1
 --- !u!4 &131514486
 Transform:
   m_ObjectHideFlags: 0

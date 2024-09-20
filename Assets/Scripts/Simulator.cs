@@ -9,6 +9,7 @@ public class Simulator : MonoBehaviour
     public float cellSize;
     public Vector3Int gridSize;
 
+    [SerializeField] List<Charge> charges;
     // Awake is called when the script instance is being loaded
     void Awake()
     {
@@ -22,6 +23,7 @@ public class Simulator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        charges = new List<Charge>(FindObjectsOfType<Charge>());
     }
 
     // Update is called once per frame
@@ -29,6 +31,10 @@ public class Simulator : MonoBehaviour
     {
         
     }
+
+    // Vector3 CalculateElectricField() {
+        
+    // }
 
     void OnDrawGizmos()
     {

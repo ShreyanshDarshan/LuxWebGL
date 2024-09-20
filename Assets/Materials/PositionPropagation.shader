@@ -40,10 +40,12 @@ Shader "Hidden/PositionPropagation"
                 return o;
             }
 
-            sampler2D _PosTexture;
             sampler2D _MainTex;
+            sampler2D _PosTexture;
+            sampler2D _AccTexture;
             float4 _MainTex_TexelSize;
             float4 _PosTexture_TexelSize;
+            float4 _AccTexture_TexelSize;
             float4 _Cell;
             int _FrameCount;
 
@@ -52,13 +54,14 @@ Shader "Hidden/PositionPropagation"
                 float2 center_pos = i.uv * _MainTex_TexelSize.zw;
              
                 float latest = 0;
-                float2 pos_of_latest = float2(0, 0);
+                float2 acc_of_latest = float2(0, 0);
                 for (int x=-1; x<=1; x++) {
                     for (int y=-1; y<=1; y++) {
                         float3 info = tex2D(_MainTex, i.uv + float2(x, y) * _MainTex_TexelSize.xy).rgb;
                         float2 pixel_pos = i.uv * _MainTex_TexelSize.zw + float2(x, y); 
                         float origin_frame = info.b;
-                        float2 charge_pos = info.rg * _MainTex_TexelSize.zw;
+                        // float2 charge_pos = info.rg * _MainTex_TexelSize.zw;
+                        float2 charge_pos = tex2D(_PosTexture, float2(0, 1) * (_FrameCount - origin_frame) * _PosTexture_TexelSize.xy).rg;
                         float2 r_vec_cur = pixel_pos - charge_pos;
                         float2 r_vec_center = center_pos - charge_pos;
                         float dist_kernel_center = length(r_vec_center);
@@ -66,55 +69,24 @@ Shader "Hidden/PositionPropagation"
                         if (dist_kernel_center - dist_circle_center < 1) {
                             if (latest < origin_frame) {
                                 latest = origin_frame;
-                                pos_of_latest = charge_pos * _MainTex_TexelSize.xy;
+                                float2 acc = tex2D(_AccTexture, float2(0, 1) * (_FrameCount - origin_frame) * _PosTexture_TexelSize.xy).rg;
+                                float2 acc_perp = acc - dot(acc, normalize(r_vec_cur)) * normalize(r_vec_cur);
+                                acc_of_latest = acc_perp / length(r_vec_cur) * 1000.0;
                             }
                         }
                     }
                 }
 
-                float4 col = float4(pos_of_latest.x, pos_of_latest.y, latest, 1);
-                // col.r = pos_of_latest.x;
-                // col.g = pos_of_latest.y;
-                // col.b = latest;
+                // float acc_final = length(acc_of_latest.y);
+                // float2 test_acc = tex2D(_AccTexture, float2(0, 0)).rg / 2.0;
+                float4 col = float4(abs(acc_of_latest.x), abs(acc_of_latest.y), latest, 1);
                 
                 if (int(center_pos.x) == int(_Cell.x) && int(center_pos.y) == int(_Cell.y)) {
                     float2 charge_pos_unit = tex2D(_PosTexture, float2(0, 0)).rg * _MainTex_TexelSize.xy;
-                    col = float4(charge_pos_unit.x, charge_pos_unit.y, _FrameCount+1, 1);
+                    col = float4(1, 0, _FrameCount+1, 1);
                 }
+
                 return col;
-                // if (center_pos.x >= _Cell.x-1 && center_pos.x <= _Cell.x+1 && center_pos.y >= _Cell.y-1 && center_pos.y <= _Cell.y+1) {
-                //     latest = 0;
-                //     pos_of_latest = float2(0, 0);
-                //     float2 charge_pos = tex2D(_PosTexture, float2(0, 0)).rg;
-                //     for (int x=-1; x<=1; x++) {
-                //         for (int y=-1; y<=1; y++) {
-                //             float2 pixel_pos = (i.uv + float2(x, y)) * _MainTex_TexelSize.zw; 
-                //             // int index = _FrameCount - int(info.b);
-                //             // float2 index_uv = index * _PosTexture_TexelSize.xy;
-                //             int origin_frame = int(_FrameCount);
-                //             float2 r_vec_cur = pixel_pos - charge_pos;
-                //             float dist_cur = length(r_vec_cur);
-                //             float r_vec_center = center_pos - charge_pos;
-                //             float dist_center = length(r_vec_center);
-                //             if ((dist_cur + 1) < dist_center) {
-                //                 if (latest < origin_frame) {
-                //                     latest = origin_frame;
-                //                     pos_of_latest = charge_pos;
-                //                 }
-                //             }
-                //         }
-                //     }
-                // }
-                // col.r = pos_of_latest.x;
-                // col.g = pos_of_latest.y;
-                // col.b = latest;
-                // // col.g = col.b = col.r;
-                // // col.r = tex2D(_PosTexture, float2(0, 0)).r / 100.0;
-                // // col.g = tex2D(_PosTexture, float2(0, 0)).g / 100.0;
-                // // col.r = tex2D(_PosTexture, float2(_PosTexture_TexelSize.x, _PosTexture_TexelSize.y)).r;
-                // // col.g = tex2D(_PosTexture, float2(_PosTexture_TexelSize.x, _PosTexture_TexelSize.y)).g;
-                // col.a = 1;
-                // return col;
             }
             ENDCG
         }
