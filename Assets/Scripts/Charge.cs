@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Charge : MonoBehaviour
@@ -11,49 +12,69 @@ public class Charge : MonoBehaviour
     public Vector3 acceleration;
     public float mass;
     Vector3 prevPosition;
-    RenderTexture texture;
-    RenderTexture texture_copy;
-    public DebugVisualizer debugVisualizer;
+    public RenderTexture texture;
+    RenderTexture textureCopy;
+    DebugVisualizer debugVisualizer;
     Simulator simulator;
     public Shader propagationShader;
     public Material propagationMat;
     Queue<Vector3> posQueue;
     int frameCount;
-    public Texture2D debugTexture;
     public Queue<Vector3> accQueue;
-
-    [SerializeField] float oscillationSpeed;
-    [SerializeField] float oscillationAmplitude;
+    [SerializeField] bool visualize = false;
+    public bool userControlled = false;
+    Transform chargeControl;
+    [SerializeField] float decelerationDistance = 5.0f;
     // Start is called before the first frame update
     void Start()
     {
         simulator = FindObjectOfType<Simulator>();
         texture = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
         texture.filterMode = FilterMode.Point;
-        texture_copy = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
+        textureCopy = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
         texture.filterMode = FilterMode.Point;
         propagationMat = new Material(propagationShader);
         posQueue = new Queue<Vector3>();
         accQueue = new Queue<Vector3>();
+        debugVisualizer = FindAnyObjectByType<DebugVisualizer>();
+        chargeControl = GameObject.FindGameObjectWithTag("ChargeController").transform;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        transform.position = oscillationAmplitude * Mathf.Sin(Time.time * oscillationSpeed) * (Vector3.up + Vector3.right);
         UpdatePhysics();
-
-        debugVisualizer.texture = texture;
-
         UpdateTexture();
+
+        if (visualize)
+        {
+            debugVisualizer.texture = texture;
+        }
+    }
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(transform.position, 0.1f);
     }
 
     private void UpdatePhysics()
     {
-        velocity = (transform.position - prevPosition) / simulator.deltaTime;
-        acceleration = (velocity - prevVelocity) / simulator.deltaTime;
-        prevVelocity = velocity;
-        prevPosition = transform.position;
+        if (userControlled) {
+            Vector3 dir_vec = chargeControl.position - transform.position;
+            if (dir_vec.magnitude > simulator.cellSize * decelerationDistance) {
+                dir_vec = dir_vec.normalized * simulator.cellSize * 5;
+            }
+            dir_vec = dir_vec / simulator.cellSize / decelerationDistance;
+            velocity = Vector3.Lerp(velocity, dir_vec * simulator.lightSpeed, 0.1f);
+            transform.position += velocity * simulator.deltaTime;
+            acceleration = (velocity - prevVelocity) / simulator.deltaTime;
+            prevVelocity = velocity;
+            prevPosition = transform.position;
+        } else {
+            velocity += acceleration * simulator.deltaTime;
+            transform.position += velocity * simulator.deltaTime;
+            prevVelocity = velocity;
+        }
     }
 
     Texture2D CreatePosTexture()
@@ -75,7 +96,6 @@ public class Charge : MonoBehaviour
         // posTexture.SetPixel(0, 0, new Color(1, 1, 0, 1));
         // Debug.Log(posTexture.GetPixel(0, 0));
         // Debug.Log(posQueue.Count);
-        debugTexture = posTexture;
         return posTexture;
     }
 
@@ -114,8 +134,8 @@ public class Charge : MonoBehaviour
         propagationMat.SetInteger("_FrameCount", frameCount);
         propagationMat.SetTexture("_PosTexture", CreatePosTexture());
         propagationMat.SetTexture("_AccTexture", CreateAccTexture());
-        Graphics.Blit(texture, texture_copy, propagationMat);
-        Graphics.Blit(texture_copy, texture);
+        Graphics.Blit(texture, textureCopy, propagationMat);
+        Graphics.Blit(textureCopy, texture);
         // Debug.Log(cell);
         frameCount++;
 
