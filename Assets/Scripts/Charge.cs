@@ -25,6 +25,8 @@ public class Charge : MonoBehaviour
     public bool userControlled = false;
     Transform chargeControl;
     [SerializeField] float decelerationDistance = 5.0f;
+    Texture2D posTexture;
+    Texture2D accTexture;
     // Start is called before the first frame update
     void Start()
     {
@@ -38,6 +40,10 @@ public class Charge : MonoBehaviour
         accQueue = new Queue<Vector3>();
         debugVisualizer = FindAnyObjectByType<DebugVisualizer>();
         chargeControl = GameObject.FindGameObjectWithTag("ChargeController").transform;
+        posTexture = new Texture2D(1, (int)simulator.gridSize.magnitude + 2, TextureFormat.RGBAFloat, false);
+        posTexture.filterMode = FilterMode.Point;
+        accTexture = new Texture2D(1, (int)simulator.gridSize.magnitude + 2, TextureFormat.RGBAFloat, false);
+        accTexture.filterMode = FilterMode.Point;
     }
 
     // Update is called once per frame
@@ -72,15 +78,14 @@ public class Charge : MonoBehaviour
             prevPosition = transform.position;
         } else {
             velocity += acceleration * simulator.deltaTime;
+                        // - Mathf.Max((velocity.magnitude*velocity.magnitude) / (simulator.lightSpeed*simulator.lightSpeed), 1.0f) * velocity * simulator.deltaTime;
             transform.position += velocity * simulator.deltaTime;
             prevVelocity = velocity;
         }
     }
 
-    Texture2D CreatePosTexture()
+    Texture2D UpdatePosTexture()
     {
-        Texture2D posTexture = new Texture2D(1, posQueue.Count, TextureFormat.RGBAFloat, false);
-        posTexture.filterMode = FilterMode.Point;
         Vector3[] posArray = posQueue.ToArray();
         for (int i = 0; i < posQueue.Count; i++)
         {
@@ -99,10 +104,8 @@ public class Charge : MonoBehaviour
         return posTexture;
     }
 
-    Texture2D CreateAccTexture()
+    Texture2D UpdateAccTexture()
     {
-        Texture2D accTexture = new Texture2D(1, accQueue.Count, TextureFormat.RGBAFloat, false);
-        accTexture.filterMode = FilterMode.Point;
         Vector3[] accArray = accQueue.ToArray();
         for (int i = 0; i < accQueue.Count; i++)
         {
@@ -122,6 +125,8 @@ public class Charge : MonoBehaviour
         );
         posQueue.Enqueue(transform.position);
         accQueue.Enqueue(acceleration);
+        acceleration = Vector3.zero;
+
         if (cell.x < 0 || cell.x >= simulator.gridSize.x || cell.y < 0 || cell.y >= simulator.gridSize.y)
         {
             return;
@@ -132,8 +137,8 @@ public class Charge : MonoBehaviour
         // Debug.Log(Time.frameCount / 1000.0f);
         propagationMat.SetFloat("_Charge", charge);
         propagationMat.SetInteger("_FrameCount", frameCount);
-        propagationMat.SetTexture("_PosTexture", CreatePosTexture());
-        propagationMat.SetTexture("_AccTexture", CreateAccTexture());
+        propagationMat.SetTexture("_PosTexture", UpdatePosTexture());
+        propagationMat.SetTexture("_AccTexture", UpdateAccTexture());
         Graphics.Blit(texture, textureCopy, propagationMat);
         Graphics.Blit(textureCopy, texture);
         // Debug.Log(cell);

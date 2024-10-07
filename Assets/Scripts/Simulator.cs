@@ -20,6 +20,7 @@ public class Simulator : MonoBehaviour
     DebugVisualizer debugVisualizer;
     public float lightSpeed = 1.0f;
     
+    Texture2D combinedAccTexture2D;
     // Awake is called when the script instance is being loaded
     void Awake()
     {
@@ -42,6 +43,7 @@ public class Simulator : MonoBehaviour
         zeroAccMat = new Material(zeroAccShader);
         debugVisualizer = FindAnyObjectByType<DebugVisualizer>();
         lightSpeed = cellSize / deltaTime;
+        combinedAccTexture2D = new Texture2D(gridSize.x, gridSize.y, TextureFormat.RGBAFloat, false);
     }
 
     // Update is called once per frame
@@ -56,7 +58,6 @@ public class Simulator : MonoBehaviour
             Graphics.Blit(combinedAccTextureCopy, combinedAccTexture);
         }
 
-        Texture2D combinedAccTexture2D = new Texture2D(gridSize.x, gridSize.y, TextureFormat.RGBAFloat, false);
         RenderTexture.active = combinedAccTexture;
         combinedAccTexture2D.ReadPixels(new Rect(0, 0, gridSize.x, gridSize.y), 0, 0);
         combinedAccTexture2D.Apply();
@@ -70,8 +71,8 @@ public class Simulator : MonoBehaviour
                 Mathf.FloorToInt((charges[i].transform.position.z - bounds.min.z) / cellSize)
             );
             Color accColor = combinedAccTexture2D.GetPixel(chargeGridPos.x, chargeGridPos.y);
-            Vector3 acc = new Vector3(accColor.r, accColor.g, 0) / 5.0f;
-            charges[i].acceleration = acc;
+            Vector3 acc = new Vector3(accColor.r, accColor.g, 0) / charges[i].mass;
+            charges[i].acceleration += acc;
         }
 
         if (visualize)
