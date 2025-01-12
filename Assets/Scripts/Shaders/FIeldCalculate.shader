@@ -47,26 +47,32 @@ Shader "Hidden/FieldCalculate"
             float4 _PosTexture_TexelSize;
             float4 _AccTexture_TexelSize;
             float4 _Cell;
+            float4 _GridSize;
             float _Charge;
             int _FrameCount;
 
+            int3 get_pos(float2 pixel) {
+                int3 pos;
+                pos.x = (int)(pixel.x * _MainTex_TexelSize.z);
+                pos.y = (int)(pixel.y * _MainTex_TexelSize.w) / (int)(_GridSize.z);
+                pos.z = (int)(uint(pixel.y * _MainTex_TexelSize.w) % uint(_GridSize.z));
+                return pos;
+            }
+
             fixed4 frag (v2f i) : SV_Target
             {
+                float3 center_pos = get_pos(i.uv);
                 float latest = 0;
-                float3 acc_of_latest = float3(0, 0, 0);
-                float2 pixel_pos2d = i.uv * _MainTex_TexelSize.zw; 
-                float3 pixel_pos = float3(pixel_pos2d.x, pixel_pos2d.y, 0);
                 float origin_frame = tex2D(_MainTex, i.uv);
                 float3 charge_pos = tex2D(_PosTexture, float2(0, 1) * (_FrameCount - origin_frame) * _PosTexture_TexelSize.xy).rgb;
-                float3 r_vec_cur = pixel_pos - charge_pos;
+                float3 r_vec_cur = center_pos - charge_pos;
                 float3 acc = tex2D(_AccTexture, float2(0, 1) * (_FrameCount - origin_frame) * _PosTexture_TexelSize.xy).rgb;
                 float3 acc_perp = acc - dot(acc, normalize(r_vec_cur)) * normalize(r_vec_cur);
-                acc_of_latest = _Charge * acc_perp / length(r_vec_cur);
+                float3 acc_of_latest = _Charge * acc_perp / length(r_vec_cur);
 
                 float4 col = float4(acc_of_latest.x, acc_of_latest.y, acc_of_latest.z, 1);
                 
-                float3 center_pos = float3((i.uv * _MainTex_TexelSize.zw).x, (i.uv * _MainTex_TexelSize.zw).y, 0);
-                if (int(center_pos.x) == int(_Cell.x) && int(center_pos.y) == int(_Cell.y)) {
+                if (int(center_pos.x) == int(_Cell.x) && int(center_pos.y) == int(_Cell.y) && int(center_pos.z) == int(_Cell.z)) {
                     // float2 charge_pos = tex2D(_PosTexture, float2(0, 0)).rg;
                     // float2 r_vec_cur = center_pos - charge_pos;
                     // float2 acc = tex2D(_AccTexture, float2(0, 0)).rg;

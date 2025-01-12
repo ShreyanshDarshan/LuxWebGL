@@ -68,14 +68,14 @@ public class Charge : MonoBehaviour
 
         if (visualize)
         {
-            debugVisualizer.texture = historyTexture;
+            debugVisualizer.texture = fieldTexture;
         }
     }
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(transform.position, 0.1f);
-    }
+    // void OnDrawGizmos()
+    // {
+    //     Gizmos.color = Color.red;
+    //     Gizmos.DrawSphere(transform.position, 0.1f);
+    // }
 
     private void UpdatePhysics()
     {
@@ -162,6 +162,7 @@ public class Charge : MonoBehaviour
         Graphics.Blit(historyTextureCopy, historyTexture);
 
         fieldMat.SetVector("_Cell", new Vector4(cell.x, cell.y, cell.z, 0));
+        fieldMat.SetVector("_GridSize", new Vector4(simulator.gridSize.x, simulator.gridSize.y, simulator.gridSize.z, 0));
         fieldMat.SetFloat("_Charge", charge);
         fieldMat.SetFloat("_FrameCount", frameCount);
         fieldMat.SetTexture("_PosTexture", posTexture);
