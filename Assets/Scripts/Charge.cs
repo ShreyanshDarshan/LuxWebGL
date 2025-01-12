@@ -38,9 +38,10 @@ public class Charge : MonoBehaviour
     void Start()
     {
         simulator = FindObjectOfType<Simulator>();
-        fieldTexture = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
+        fieldTexture = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y * simulator.gridSize.z, 0, RenderTextureFormat.ARGBFloat);
+        fieldTexture.volumeDepth = simulator.gridSize.z;
         fieldTexture.filterMode = FilterMode.Point;
-        fieldTextureCopy = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
+        fieldTextureCopy = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y * simulator.gridSize.z, 0, RenderTextureFormat.ARGBFloat);
         fieldTextureCopy.filterMode = FilterMode.Point;
 
         propagationMat = new Material(propagationShader);
@@ -53,9 +54,9 @@ public class Charge : MonoBehaviour
         posTexture.filterMode = FilterMode.Point;
         accTexture = new Texture2D(1, (int)simulator.gridSize.magnitude + 2, TextureFormat.RGBAFloat, false);
         accTexture.filterMode = FilterMode.Point;
-        historyTexture = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.RFloat);
+        historyTexture = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y * simulator.gridSize.z, 0, RenderTextureFormat.RFloat);
         historyTexture.filterMode = FilterMode.Point;
-        historyTextureCopy = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.RFloat);
+        historyTextureCopy = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y * simulator.gridSize.z, 0, RenderTextureFormat.RFloat);
         historyTextureCopy.filterMode = FilterMode.Point;
     }
 
@@ -67,7 +68,7 @@ public class Charge : MonoBehaviour
 
         if (visualize)
         {
-            debugVisualizer.texture = fieldTexture;
+            debugVisualizer.texture = historyTexture;
         }
     }
     void OnDrawGizmos()
@@ -151,6 +152,7 @@ public class Charge : MonoBehaviour
         // texture.Apply();
         
         propagationMat.SetVector("_Cell", new Vector4(cell.x, cell.y, cell.z, 0));
+        propagationMat.SetVector("_GridSize", new Vector4(simulator.gridSize.x, simulator.gridSize.y, simulator.gridSize.z, 0));
         // Debug.Log(Time.frameCount / 1000.0f);
         propagationMat.SetFloat("_Charge", charge);
         propagationMat.SetInteger("_FrameCount", frameCount);
