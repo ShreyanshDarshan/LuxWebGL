@@ -185,7 +185,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deltaTime: 1
   bounds:
-    m_Center: {x: 0, y: 0, z: 0}
+    m_Center: {x: 5, y: 5, z: 5}
     m_Extent: {x: 10, y: 10, z: 10}
   cellSize: 0.1
   gridSize: {x: 0, y: 0, z: 0}
@@ -245,10 +245,12 @@ MonoBehaviour:
   acceleration: {x: 0, y: 0, z: 0}
   force: {x: 0, y: 0, z: 0}
   mass: 50
-  texture: {fileID: 0}
+  fieldTexture: {fileID: 0}
   propagationShader: {fileID: 4800000, guid: 70481d925eab65d4d9961d2c90847493, type: 3}
   propagationMat: {fileID: 0}
-  visualize: 0
+  fieldShader: {fileID: 4800000, guid: a60dfd159ee8032499253dbf84c622d1, type: 3}
+  fieldMat: {fileID: 0}
+  visualize: 1
   userControlled: 1
   decelerationDistance: 5
   dampingCoeff: 0
@@ -462,9 +464,11 @@ MonoBehaviour:
   acceleration: {x: 0, y: 0, z: 0}
   force: {x: 0, y: 0, z: 0}
   mass: 100
-  texture: {fileID: 0}
+  fieldTexture: {fileID: 0}
   propagationShader: {fileID: 4800000, guid: 70481d925eab65d4d9961d2c90847493, type: 3}
   propagationMat: {fileID: 0}
+  fieldShader: {fileID: 0}
+  fieldMat: {fileID: 0}
   visualize: 0
   userControlled: 0
   decelerationDistance: 5
@@ -755,9 +759,11 @@ MonoBehaviour:
   acceleration: {x: 0, y: 0, z: 0}
   force: {x: 0, y: 0, z: 0}
   mass: 100
-  texture: {fileID: 0}
+  fieldTexture: {fileID: 0}
   propagationShader: {fileID: 4800000, guid: 70481d925eab65d4d9961d2c90847493, type: 3}
   propagationMat: {fileID: 0}
+  fieldShader: {fileID: 0}
+  fieldMat: {fileID: 0}
   visualize: 0
   userControlled: 0
   decelerationDistance: 5

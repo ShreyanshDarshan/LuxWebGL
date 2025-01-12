@@ -16,10 +16,14 @@ public class Charge : MonoBehaviour
     public RenderTexture fieldTexture;
     RenderTexture fieldTextureCopy;
     RenderTexture historyTexture;
+    RenderTexture historyTextureCopy;
     DebugVisualizer debugVisualizer;
     Simulator simulator;
     public Shader propagationShader;
     public Material propagationMat;
+    public Shader fieldShader;
+    public Material fieldMat;
+
     Queue<Vector3> posQueue;
     int frameCount;
     public Queue<Vector3> accQueue;
@@ -40,6 +44,7 @@ public class Charge : MonoBehaviour
         fieldTextureCopy.filterMode = FilterMode.Point;
 
         propagationMat = new Material(propagationShader);
+        fieldMat = new Material(fieldShader);
         posQueue = new Queue<Vector3>();
         accQueue = new Queue<Vector3>();
         debugVisualizer = FindAnyObjectByType<DebugVisualizer>();
@@ -48,8 +53,10 @@ public class Charge : MonoBehaviour
         posTexture.filterMode = FilterMode.Point;
         accTexture = new Texture2D(1, (int)simulator.gridSize.magnitude + 2, TextureFormat.RGBAFloat, false);
         accTexture.filterMode = FilterMode.Point;
-        historyTexture = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
+        historyTexture = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.RFloat);
         historyTexture.filterMode = FilterMode.Point;
+        historyTextureCopy = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.RFloat);
+        historyTextureCopy.filterMode = FilterMode.Point;
     }
 
     // Update is called once per frame
@@ -149,8 +156,16 @@ public class Charge : MonoBehaviour
         propagationMat.SetInteger("_FrameCount", frameCount);
         propagationMat.SetTexture("_PosTexture", UpdatePosTexture());
         propagationMat.SetTexture("_AccTexture", UpdateAccTexture());
-        Graphics.Blit(fieldTexture, fieldTextureCopy, propagationMat);
-        Graphics.Blit(fieldTextureCopy, fieldTexture);
+        Graphics.Blit(historyTexture, historyTextureCopy, propagationMat);
+        Graphics.Blit(historyTextureCopy, historyTexture);
+
+        fieldMat.SetVector("_Cell", new Vector4(cell.x, cell.y, cell.z, 0));
+        fieldMat.SetFloat("_Charge", charge);
+        fieldMat.SetFloat("_FrameCount", frameCount);
+        fieldMat.SetTexture("_PosTexture", posTexture);
+        fieldMat.SetTexture("_AccTexture", accTexture);
+        Graphics.Blit(historyTexture, fieldTexture, fieldMat);
+        // Graphics.Blit(fieldTextureCopy, fieldTexture);
         // Debug.Log(cell);
         frameCount++;
 

@@ -41,50 +41,31 @@ Shader "Hidden/FieldCalculate"
             }
 
             sampler2D _MainTex;
-            sampler2D _HistoryTexture;
             sampler2D _PosTexture;
             sampler2D _AccTexture;
             float4 _MainTex_TexelSize;
-            float4 _HistoryTexture_TexelSize;
             float4 _PosTexture_TexelSize;
             float4 _AccTexture_TexelSize;
             float4 _Cell;
             float _Charge;
             int _FrameCount;
 
-            fixed frag (v2f i) : SV_Target
+            fixed4 frag (v2f i) : SV_Target
             {
-                float2 center_pos = i.uv * _MainTex_TexelSize.zw;
-             
                 float latest = 0;
-                float2 acc_of_latest = float2(0, 0);
-                for (int x=-1; x<=1; x++) {
-                    for (int y=-1; y<=1; y++) {
-                        float3 info = tex2D(_HistoryTexture, i.uv + float2(x, y) * _HistoryTexture_TexelSize.xy).rgb;
-                        float2 pixel_pos = i.uv * _HistoryTexture_TexelSize.zw + float2(x, y); 
-                        float origin_frame = info.r;
-                        // float2 charge_pos = info.rg * _MainTex_TexelSize.zw;
-                        float2 charge_pos = tex2D(_PosTexture, float2(0, 1) * (_FrameCount - origin_frame) * _PosTexture_TexelSize.xy).rg;
-                        float2 r_vec_cur = pixel_pos - charge_pos;
-                        float2 r_vec_center = center_pos - charge_pos;
-                        float dist_kernel_center = length(r_vec_center);
-                        float dist_circle_center = _FrameCount - origin_frame;
-                        if (dist_kernel_center - dist_circle_center < 1) {
-                            if (latest < origin_frame) {
-                                latest = origin_frame;
-                                float2 acc = tex2D(_AccTexture, float2(0, 1) * (_FrameCount - origin_frame) * _PosTexture_TexelSize.xy).rg;
-                                float2 acc_perp = acc - dot(acc, normalize(r_vec_cur)) * normalize(r_vec_cur);
-                                acc_of_latest = _Charge * acc_perp / length(r_vec_cur);
-                            }
-                        }
-                    }
-                }
+                float3 acc_of_latest = float3(0, 0, 0);
+                float2 pixel_pos2d = i.uv * _MainTex_TexelSize.zw; 
+                float3 pixel_pos = float3(pixel_pos2d.x, pixel_pos2d.y, 0);
+                float origin_frame = tex2D(_MainTex, i.uv);
+                float3 charge_pos = tex2D(_PosTexture, float2(0, 1) * (_FrameCount - origin_frame) * _PosTexture_TexelSize.xy).rgb;
+                float3 r_vec_cur = pixel_pos - charge_pos;
+                float3 acc = tex2D(_AccTexture, float2(0, 1) * (_FrameCount - origin_frame) * _PosTexture_TexelSize.xy).rgb;
+                float3 acc_perp = acc - dot(acc, normalize(r_vec_cur)) * normalize(r_vec_cur);
+                acc_of_latest = _Charge * acc_perp / length(r_vec_cur);
 
-                // float acc_final = length(acc_of_latest.y);
-                // float2 test_acc = tex2D(_AccTexture, float2(0, 0)).rg / 2.0;
-                // float4 col = float4((acc_of_latest.x), (acc_of_latest.y), latest, 1);
-                float col = latest;
+                float4 col = float4(acc_of_latest.x, acc_of_latest.y, acc_of_latest.z, 1);
                 
+                float3 center_pos = float3((i.uv * _MainTex_TexelSize.zw).x, (i.uv * _MainTex_TexelSize.zw).y, 0);
                 if (int(center_pos.x) == int(_Cell.x) && int(center_pos.y) == int(_Cell.y)) {
                     // float2 charge_pos = tex2D(_PosTexture, float2(0, 0)).rg;
                     // float2 r_vec_cur = center_pos - charge_pos;
@@ -92,7 +73,7 @@ Shader "Hidden/FieldCalculate"
                     // float2 acc_perp = acc - dot(acc, normalize(r_vec_cur)) * normalize(r_vec_cur);
                     // float2 acc_final = acc_perp / length(r_vec_cur) * 1000.0;
                     // col = float4(0, 0, _FrameCount+1, 1);
-                    col = _FrameCount+1;
+                    col = float4(0, 0, 0, 1);
                 }
                 
                 return col;
