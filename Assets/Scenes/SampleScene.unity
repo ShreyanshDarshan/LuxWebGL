@@ -183,14 +183,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73f5f1b2f5055a04c92e7c50c92bb7cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deltaTime: 0.1
+  deltaTime: 1
   bounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 10, y: 10, z: 10}
-  cellSize: 0.05
+  cellSize: 0.1
   gridSize: {x: 0, y: 0, z: 0}
-  combineAccShader: {fileID: 4800000, guid: 60a9c536c3acfc24297bff4f403f2ec4, type: 3}
-  zeroAccShader: {fileID: 4800000, guid: a7e671ee737e31f46abf2ea07dfec851, type: 3}
+  combineFieldShader: {fileID: 4800000, guid: 60a9c536c3acfc24297bff4f403f2ec4, type: 3}
+  zeroFieldShader: {fileID: 4800000, guid: a7e671ee737e31f46abf2ea07dfec851, type: 3}
   charges: []
   visualize: 1
   lightSpeed: 1
@@ -239,10 +239,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919832925dc1fb74cbfa9bc6e37a2752, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  charge: 0
+  charge: 100
   velocity: {x: 0, y: 0, z: 0}
   prevVelocity: {x: 0, y: 0, z: 0}
   acceleration: {x: 0, y: 0, z: 0}
+  force: {x: 0, y: 0, z: 0}
   mass: 50
   texture: {fileID: 0}
   propagationShader: {fileID: 4800000, guid: 70481d925eab65d4d9961d2c90847493, type: 3}
@@ -250,6 +251,7 @@ MonoBehaviour:
   visualize: 0
   userControlled: 1
   decelerationDistance: 5
+  dampingCoeff: 0
 --- !u!4 &131514486
 Transform:
   m_ObjectHideFlags: 0
@@ -409,6 +411,79 @@ Transform:
   - {fileID: 1378437495}
   m_Father: {fileID: 1638062280}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &559401033
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 559401036}
+  - component: {fileID: 559401035}
+  - component: {fileID: 559401034}
+  m_Layer: 0
+  m_Name: Charge (206)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &559401034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559401033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e9dfcce3e446ca4f9e0721eefee24db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  springForceConstant: 0.01
+  dampingConstant: 0
+  initPosition: {x: 0, y: 0, z: 0}
+--- !u!114 &559401035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559401033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 919832925dc1fb74cbfa9bc6e37a2752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  charge: 100
+  velocity: {x: 0, y: 0, z: 0}
+  prevVelocity: {x: 0, y: 0, z: 0}
+  acceleration: {x: 0, y: 0, z: 0}
+  force: {x: 0, y: 0, z: 0}
+  mass: 100
+  texture: {fileID: 0}
+  propagationShader: {fileID: 4800000, guid: 70481d925eab65d4d9961d2c90847493, type: 3}
+  propagationMat: {fileID: 0}
+  visualize: 0
+  userControlled: 0
+  decelerationDistance: 5
+  dampingCoeff: 0
+--- !u!4 &559401036
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559401033}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.12, y: -0.27999973, z: -0.40999985}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -497,83 +572,12 @@ Transform:
   m_GameObject: {fileID: 705507993}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: -3.13, y: -14.55, z: 15.19}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &868589327
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 868589330}
-  - component: {fileID: 868589329}
-  - component: {fileID: 868589328}
-  m_Layer: 0
-  m_Name: Charge (70)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &868589328
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 868589327}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e9dfcce3e446ca4f9e0721eefee24db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  springForceConstant: 0
-  dampingConstant: 0
-  initPosition: {x: 0, y: 0, z: 0}
---- !u!114 &868589329
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 868589327}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 919832925dc1fb74cbfa9bc6e37a2752, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  charge: 0
-  velocity: {x: 0, y: 0, z: 0}
-  prevVelocity: {x: 0, y: 0, z: 0}
-  acceleration: {x: 0, y: 0, z: 0}
-  mass: 50
-  texture: {fileID: 0}
-  propagationShader: {fileID: 4800000, guid: 70481d925eab65d4d9961d2c90847493, type: 3}
-  propagationMat: {fileID: 0}
-  visualize: 0
-  userControlled: 0
-  decelerationDistance: 5
---- !u!4 &868589330
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 868589327}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.45, y: -0.30999994, z: -0.40999985}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1378437494
 GameObject:
   m_ObjectHideFlags: 0
@@ -717,7 +721,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2107931957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -730,7 +734,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e9dfcce3e446ca4f9e0721eefee24db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  springForceConstant: 0
+  springForceConstant: 0.01
   dampingConstant: 0
   initPosition: {x: 0, y: 0, z: 0}
 --- !u!114 &2107931958
@@ -745,17 +749,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919832925dc1fb74cbfa9bc6e37a2752, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  charge: 0
+  charge: 100
   velocity: {x: 0, y: 0, z: 0}
   prevVelocity: {x: 0, y: 0, z: 0}
   acceleration: {x: 0, y: 0, z: 0}
-  mass: 50
+  force: {x: 0, y: 0, z: 0}
+  mass: 100
   texture: {fileID: 0}
   propagationShader: {fileID: 4800000, guid: 70481d925eab65d4d9961d2c90847493, type: 3}
   propagationMat: {fileID: 0}
   visualize: 0
   userControlled: 0
   decelerationDistance: 5
+  dampingCoeff: 0
 --- !u!4 &2107931959
 Transform:
   m_ObjectHideFlags: 0
@@ -765,7 +771,7 @@ Transform:
   m_GameObject: {fileID: 2107931956}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.45, y: -1.4, z: -0.40999985}
+  m_LocalPosition: {x: 0.45, y: 2.77, z: -0.40999985}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -780,7 +786,7 @@ SceneRoots:
   - {fileID: 1714080925}
   - {fileID: 131514486}
   - {fileID: 2107931959}
-  - {fileID: 868589330}
+  - {fileID: 559401036}
   - {fileID: 75435560}
   - {fileID: 141374931}
   - {fileID: 2008443301}

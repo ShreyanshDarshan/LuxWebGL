@@ -1,9 +1,9 @@
-Shader "Hidden/AccCombine"
+Shader "Hidden/FieldZero"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _AccTexture ("AccTexture", 2D) = "white" {}
+        _FieldTexture ("FieldTexture", 2D) = "white" {}
     }
     SubShader
     {
@@ -39,14 +39,11 @@ Shader "Hidden/AccCombine"
             }
 
             sampler2D _MainTex;
-            sampler2D _AccTexture;
+            sampler2D _FieldTexture;
 
             fixed4 frag (v2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv);
-                fixed4 acc = tex2D(_AccTexture, i.uv);
-                col.rgb += acc.rgb;
-                return col;
+                return fixed4(0, 0, 0, 1);
             }
             ENDCG
         }

@@ -2,7 +2,7 @@ Shader "Hidden/PositionPropagation"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _MainTex ("FieldTexture", 2D) = "white" {}
         _Cell ("Cell", Vector) = (0.01, 0.01, 0.01, 0.01)
         _PosTexture ("PosTexture", 2D) = "white" {}
         // _FrameCount ("FrameCount", Float) = 0
@@ -47,6 +47,7 @@ Shader "Hidden/PositionPropagation"
             float4 _PosTexture_TexelSize;
             float4 _AccTexture_TexelSize;
             float4 _Cell;
+            float _Charge;
             int _FrameCount;
 
             fixed4 frag (v2f i) : SV_Target
@@ -71,7 +72,7 @@ Shader "Hidden/PositionPropagation"
                                 latest = origin_frame;
                                 float2 acc = tex2D(_AccTexture, float2(0, 1) * (_FrameCount - origin_frame) * _PosTexture_TexelSize.xy).rg;
                                 float2 acc_perp = acc - dot(acc, normalize(r_vec_cur)) * normalize(r_vec_cur);
-                                acc_of_latest = acc_perp / length(r_vec_cur) * 1000.0;
+                                acc_of_latest = _Charge * acc_perp / length(r_vec_cur);
                             }
                         }
                     }
@@ -82,11 +83,11 @@ Shader "Hidden/PositionPropagation"
                 float4 col = float4((acc_of_latest.x), (acc_of_latest.y), latest, 1);
                 
                 if (int(center_pos.x) == int(_Cell.x) && int(center_pos.y) == int(_Cell.y)) {
-                    float2 charge_pos = tex2D(_PosTexture, float2(0, 0)).rg;
-                    float2 r_vec_cur = center_pos - charge_pos;
-                    float2 acc = tex2D(_AccTexture, float2(0, 0)).rg;
-                    float2 acc_perp = acc - dot(acc, normalize(r_vec_cur)) * normalize(r_vec_cur);
-                    float2 acc_final = acc_perp / length(r_vec_cur) * 1000.0;
+                    // float2 charge_pos = tex2D(_PosTexture, float2(0, 0)).rg;
+                    // float2 r_vec_cur = center_pos - charge_pos;
+                    // float2 acc = tex2D(_AccTexture, float2(0, 0)).rg;
+                    // float2 acc_perp = acc - dot(acc, normalize(r_vec_cur)) * normalize(r_vec_cur);
+                    // float2 acc_final = acc_perp / length(r_vec_cur) * 1000.0;
                     col = float4(0, 0, _FrameCount+1, 1);
                 }
                 

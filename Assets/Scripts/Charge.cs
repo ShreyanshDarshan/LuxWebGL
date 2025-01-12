@@ -10,6 +10,7 @@ public class Charge : MonoBehaviour
     public Vector3 velocity;
     public Vector3 prevVelocity;
     public Vector3 acceleration;
+    public Vector3 force;
     public float mass;
     Vector3 prevPosition;
     public RenderTexture texture;
@@ -27,6 +28,7 @@ public class Charge : MonoBehaviour
     [SerializeField] float decelerationDistance = 5.0f;
     Texture2D posTexture;
     Texture2D accTexture;
+    public float dampingCoeff = 0.1f;
     // Start is called before the first frame update
     void Start()
     {
@@ -77,10 +79,13 @@ public class Charge : MonoBehaviour
             prevVelocity = velocity;
             prevPosition = transform.position;
         } else {
+            // velocity = 
+            acceleration = force / mass;
             velocity += acceleration * simulator.deltaTime;
-                        // - Mathf.Max((velocity.magnitude*velocity.magnitude) / (simulator.lightSpeed*simulator.lightSpeed), 1.0f) * velocity * simulator.deltaTime;
+            // velocity = Mathf.Sqrt(Mathf.Max(velocity.magnitude * velocity.magnitude - acceleration.magnitude*acceleration.magnitude * dampingCoeff, 0)) * velocity.normalized;
             transform.position += velocity * simulator.deltaTime;
             prevVelocity = velocity;
+            force = Vector3.zero;
         }
     }
 
