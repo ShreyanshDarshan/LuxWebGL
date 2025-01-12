@@ -186,7 +186,7 @@ MonoBehaviour:
   deltaTime: 1
   bounds:
     m_Center: {x: 5, y: 5, z: 5}
-    m_Extent: {x: 10, y: 10, z: 10}
+    m_Extent: {x: 5, y: 5, z: 5}
   cellSize: 0.1
   gridSize: {x: 0, y: 0, z: 0}
   combineFieldShader: {fileID: 4800000, guid: 60a9c536c3acfc24297bff4f403f2ec4, type: 3}
@@ -239,7 +239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919832925dc1fb74cbfa9bc6e37a2752, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  charge: 100
+  charge: 1000
   velocity: {x: 0, y: 0, z: 0}
   prevVelocity: {x: 0, y: 0, z: 0}
   acceleration: {x: 0, y: 0, z: 0}
@@ -263,7 +263,7 @@ Transform:
   m_GameObject: {fileID: 131514484}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.17, y: 1.03, z: 0}
+  m_LocalPosition: {x: 1.8, y: 5.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -702,7 +702,7 @@ Transform:
   m_GameObject: {fileID: 2008443300}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.67, y: -0.16, z: 0}
+  m_LocalPosition: {x: 2.2, y: 2.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
