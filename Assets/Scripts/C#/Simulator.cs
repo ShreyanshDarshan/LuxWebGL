@@ -35,9 +35,9 @@ public class Simulator : MonoBehaviour
     void Start()
     {
         charges = new List<Charge>(FindObjectsOfType<Charge>());
-        combinedFieldTexture = new RenderTexture(gridSize.x, gridSize.y, 0, RenderTextureFormat.ARGBFloat);
+        combinedFieldTexture = new RenderTexture(gridSize.x, gridSize.y * gridSize.z, 0, RenderTextureFormat.ARGBFloat);
         combinedFieldTexture.filterMode = FilterMode.Point;
-        combinedFieldTextureCopy = new RenderTexture(gridSize.x, gridSize.y, 0, RenderTextureFormat.ARGBFloat);
+        combinedFieldTextureCopy = new RenderTexture(gridSize.x, gridSize.y * gridSize.z, 0, RenderTextureFormat.ARGBFloat);
         combinedFieldTextureCopy.filterMode = FilterMode.Point;
         combineFieldMat = new Material(combineFieldShader);
         zeroFieldMat = new Material(zeroFieldShader);
@@ -49,41 +49,44 @@ public class Simulator : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        // Graphics.Blit(combinedFieldTexture, combinedFieldTextureCopy, zeroFieldMat);
-        // Graphics.Blit(combinedFieldTextureCopy, combinedFieldTexture);
-        // for (int i = 0; i < charges.Count; i++)
-        // {
-        //     combineFieldMat.SetTexture("_FieldTexture", charges[i].fieldTexture);
-        //     Graphics.Blit(combinedFieldTexture, combinedFieldTextureCopy, combineFieldMat);
-        //     Graphics.Blit(combinedFieldTextureCopy, combinedFieldTexture);
-        // }
+        Graphics.Blit(combinedFieldTexture, combinedFieldTextureCopy, zeroFieldMat);
+        Graphics.Blit(combinedFieldTextureCopy, combinedFieldTexture);
+        for (int i = 0; i < charges.Count; i++)
+        {
+            combineFieldMat.SetTexture("_FieldTexture", charges[i].fieldTexture);
+            Graphics.Blit(combinedFieldTexture, combinedFieldTextureCopy, combineFieldMat);
+            Graphics.Blit(combinedFieldTextureCopy, combinedFieldTexture);
+        }
 
-        // RenderTexture.active = combinedFieldTexture;
-        // combinedFieldTexture2D.ReadPixels(new Rect(0, 0, gridSize.x, gridSize.y), 0, 0);
-        // combinedFieldTexture2D.Apply();
-        // RenderTexture.active = null;
+        RenderTexture.active = combinedFieldTexture;
+        combinedFieldTexture2D.ReadPixels(new Rect(0, 0, gridSize.x, gridSize.y * gridSize.z), 0, 0);
+        combinedFieldTexture2D.Apply();
+        RenderTexture.active = null;
 
-        // for (int i = 0; i < charges.Count; i++)
-        // {
-        //     Vector3Int chargeGridPos = new Vector3Int(
-        //         Mathf.FloorToInt((charges[i].transform.position.x - bounds.min.x) / cellSize),
-        //         Mathf.FloorToInt((charges[i].transform.position.y - bounds.min.y) / cellSize),
-        //         Mathf.FloorToInt((charges[i].transform.position.z - bounds.min.z) / cellSize)
-        //     );
-        //     Color fieldColor = combinedFieldTexture2D.GetPixel(chargeGridPos.x, chargeGridPos.y);
-        //     Vector3 force = new Vector3(fieldColor.r, fieldColor.g, 0);
-        //     charges[i].force += force;
-        // }
+        for (int i = 0; i < charges.Count; i++)
+        {
+            Vector3Int chargeGridPos = new Vector3Int(
+                Mathf.FloorToInt((charges[i].transform.position.x - bounds.min.x) / cellSize),
+                Mathf.FloorToInt((charges[i].transform.position.y - bounds.min.y) / cellSize),
+                Mathf.FloorToInt((charges[i].transform.position.z - bounds.min.z) / cellSize)
+            );
+            Color fieldColor = combinedFieldTexture2D.GetPixel(chargeGridPos.x, chargeGridPos.y * gridSize.z + chargeGridPos.z);
+            Vector3 force = new Vector3(fieldColor.r, fieldColor.g, fieldColor.b);
+            charges[i].force += force;
+        }
 
-        // float energy = 0;
-        // for (int px=0; px<gridSize.x; px++) {
-        //     for (int py=0; py<gridSize.y; py++) {
-        //         Color fieldColor = combinedFieldTexture2D.GetPixel(px, py);
-        //         Vector3 field_val = new Vector3(fieldColor.r, fieldColor.g, 0);
-        //         energy += field_val.sqrMagnitude;
-        //     }
-        // }
-        // Debug.Log("Energy: " + energy);
+        float energy = 0;
+        for (int px=0; px<gridSize.x; px++) {
+            for (int py=0; py<gridSize.y; py++) { 
+                for (int pz=0; pz<gridSize.z; pz++) {
+                    Color fieldColor = combinedFieldTexture2D.GetPixel(px, py * gridSize.z + pz);
+                    Vector3 field_val = new Vector3(fieldColor.r, fieldColor.g, fieldColor.b);
+                    Debug.Log(field_val);
+                    energy += field_val.sqrMagnitude;
+                }
+            }
+        }
+        Debug.Log("Energy: " + energy);
 
         if (visualize)
         {
@@ -95,5 +98,15 @@ public class Simulator : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(bounds.center, bounds.size);
+
+        // for (int i = 0; i < gridSize.x; i++) {
+        //     for (int j=0; j<gridSize.y; j++) {
+        //         for (int k=0; k<gridSize.z; k++) {
+        //             Ray r;
+        //             combinedFieldTexture2D.GetPixel(i)
+        //             Gizmos.DrawRay()
+        //         }
+        //     }
+        // }
     }
 }

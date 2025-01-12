@@ -34,6 +34,7 @@ public class Charge : MonoBehaviour
     Texture2D posTexture;
     Texture2D accTexture;
     public float dampingCoeff = 0.1f;
+    public bool push;
     // Start is called before the first frame update
     void Start()
     {
@@ -58,6 +59,7 @@ public class Charge : MonoBehaviour
         historyTexture.filterMode = FilterMode.Point;
         historyTextureCopy = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y * simulator.gridSize.z, 0, RenderTextureFormat.RFloat);
         historyTextureCopy.filterMode = FilterMode.Point;
+        push = false;
     }
 
     // Update is called once per frame
@@ -80,16 +82,28 @@ public class Charge : MonoBehaviour
     private void UpdatePhysics()
     {
         if (userControlled) {
-            Vector3 dir_vec = chargeControl.position - transform.position;
-            if (dir_vec.magnitude > simulator.cellSize * decelerationDistance) {
-                dir_vec = dir_vec.normalized * simulator.cellSize * 5;
+            // Vector3 dir_vec = chargeControl.position - transform.position;
+            // if (dir_vec.magnitude > simulator.cellSize * decelerationDistance) {
+            //     dir_vec = dir_vec.normalized * simulator.cellSize * 5;
+            // }
+            // dir_vec = dir_vec / simulator.cellSize / decelerationDistance;
+            // velocity = Vector3.Lerp(velocity, dir_vec * simulator.lightSpeed, 0.1f);
+            // transform.position += velocity * simulator.deltaTime;
+            // acceleration = (velocity - prevVelocity) / simulator.deltaTime;
+            // prevVelocity = velocity;
+            // prevPosition = transform.position;
+            if (push) {
+                acceleration = Vector3.up * 0.01f;
+                push = false;
+                Debug.Log(push);
+            } else {
+                acceleration = Vector3.zero;
             }
-            dir_vec = dir_vec / simulator.cellSize / decelerationDistance;
-            velocity = Vector3.Lerp(velocity, dir_vec * simulator.lightSpeed, 0.1f);
+            velocity += acceleration * simulator.deltaTime;
+            // velocity = Mathf.Sqrt(Mathf.Max(velocity.magnitude * velocity.magnitude - acceleration.magnitude*acceleration.magnitude * dampingCoeff, 0)) * velocity.normalized;
             transform.position += velocity * simulator.deltaTime;
-            acceleration = (velocity - prevVelocity) / simulator.deltaTime;
             prevVelocity = velocity;
-            prevPosition = transform.position;
+            force = Vector3.zero;
         } else {
             // velocity = 
             acceleration = force / mass;
