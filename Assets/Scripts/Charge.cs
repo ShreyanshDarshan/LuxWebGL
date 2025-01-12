@@ -13,8 +13,9 @@ public class Charge : MonoBehaviour
     public Vector3 force;
     public float mass;
     Vector3 prevPosition;
-    public RenderTexture texture;
-    RenderTexture textureCopy;
+    public RenderTexture fieldTexture;
+    RenderTexture fieldTextureCopy;
+    RenderTexture historyTexture;
     DebugVisualizer debugVisualizer;
     Simulator simulator;
     public Shader propagationShader;
@@ -33,10 +34,11 @@ public class Charge : MonoBehaviour
     void Start()
     {
         simulator = FindObjectOfType<Simulator>();
-        texture = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
-        texture.filterMode = FilterMode.Point;
-        textureCopy = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
-        texture.filterMode = FilterMode.Point;
+        fieldTexture = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
+        fieldTexture.filterMode = FilterMode.Point;
+        fieldTextureCopy = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
+        fieldTextureCopy.filterMode = FilterMode.Point;
+
         propagationMat = new Material(propagationShader);
         posQueue = new Queue<Vector3>();
         accQueue = new Queue<Vector3>();
@@ -46,6 +48,8 @@ public class Charge : MonoBehaviour
         posTexture.filterMode = FilterMode.Point;
         accTexture = new Texture2D(1, (int)simulator.gridSize.magnitude + 2, TextureFormat.RGBAFloat, false);
         accTexture.filterMode = FilterMode.Point;
+        historyTexture = new RenderTexture(simulator.gridSize.x, simulator.gridSize.y, 0, RenderTextureFormat.ARGBFloat);
+        historyTexture.filterMode = FilterMode.Point;
     }
 
     // Update is called once per frame
@@ -56,7 +60,7 @@ public class Charge : MonoBehaviour
 
         if (visualize)
         {
-            debugVisualizer.texture = texture;
+            debugVisualizer.texture = fieldTexture;
         }
     }
     void OnDrawGizmos()
@@ -138,14 +142,15 @@ public class Charge : MonoBehaviour
         }
         // texture.SetPixel(cell.x, cell.y, new Color(Time.frameCount / 1000, 0, 0, 1));
         // texture.Apply();
+        
         propagationMat.SetVector("_Cell", new Vector4(cell.x, cell.y, cell.z, 0));
         // Debug.Log(Time.frameCount / 1000.0f);
         propagationMat.SetFloat("_Charge", charge);
         propagationMat.SetInteger("_FrameCount", frameCount);
         propagationMat.SetTexture("_PosTexture", UpdatePosTexture());
         propagationMat.SetTexture("_AccTexture", UpdateAccTexture());
-        Graphics.Blit(texture, textureCopy, propagationMat);
-        Graphics.Blit(textureCopy, texture);
+        Graphics.Blit(fieldTexture, fieldTextureCopy, propagationMat);
+        Graphics.Blit(fieldTextureCopy, fieldTexture);
         // Debug.Log(cell);
         frameCount++;
 

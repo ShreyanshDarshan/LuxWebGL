@@ -49,31 +49,31 @@ public class Simulator : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        Graphics.Blit(combinedFieldTexture, combinedFieldTextureCopy, zeroFieldMat);
-        Graphics.Blit(combinedFieldTextureCopy, combinedFieldTexture);
-        for (int i = 0; i < charges.Count; i++)
-        {
-            combineFieldMat.SetTexture("_FieldTexture", charges[i].texture);
-            Graphics.Blit(combinedFieldTexture, combinedFieldTextureCopy, combineFieldMat);
-            Graphics.Blit(combinedFieldTextureCopy, combinedFieldTexture);
-        }
+        // Graphics.Blit(combinedFieldTexture, combinedFieldTextureCopy, zeroFieldMat);
+        // Graphics.Blit(combinedFieldTextureCopy, combinedFieldTexture);
+        // for (int i = 0; i < charges.Count; i++)
+        // {
+        //     combineFieldMat.SetTexture("_FieldTexture", charges[i].fieldTexture);
+        //     Graphics.Blit(combinedFieldTexture, combinedFieldTextureCopy, combineFieldMat);
+        //     Graphics.Blit(combinedFieldTextureCopy, combinedFieldTexture);
+        // }
 
-        RenderTexture.active = combinedFieldTexture;
-        combinedFieldTexture2D.ReadPixels(new Rect(0, 0, gridSize.x, gridSize.y), 0, 0);
-        combinedFieldTexture2D.Apply();
-        RenderTexture.active = null;
+        // RenderTexture.active = combinedFieldTexture;
+        // combinedFieldTexture2D.ReadPixels(new Rect(0, 0, gridSize.x, gridSize.y), 0, 0);
+        // combinedFieldTexture2D.Apply();
+        // RenderTexture.active = null;
 
-        for (int i = 0; i < charges.Count; i++)
-        {
-            Vector3Int chargeGridPos = new Vector3Int(
-                Mathf.FloorToInt((charges[i].transform.position.x - bounds.min.x) / cellSize),
-                Mathf.FloorToInt((charges[i].transform.position.y - bounds.min.y) / cellSize),
-                Mathf.FloorToInt((charges[i].transform.position.z - bounds.min.z) / cellSize)
-            );
-            Color fieldColor = combinedFieldTexture2D.GetPixel(chargeGridPos.x, chargeGridPos.y);
-            Vector3 force = new Vector3(fieldColor.r, fieldColor.g, 0);
-            charges[i].force += force;
-        }
+        // for (int i = 0; i < charges.Count; i++)
+        // {
+        //     Vector3Int chargeGridPos = new Vector3Int(
+        //         Mathf.FloorToInt((charges[i].transform.position.x - bounds.min.x) / cellSize),
+        //         Mathf.FloorToInt((charges[i].transform.position.y - bounds.min.y) / cellSize),
+        //         Mathf.FloorToInt((charges[i].transform.position.z - bounds.min.z) / cellSize)
+        //     );
+        //     Color fieldColor = combinedFieldTexture2D.GetPixel(chargeGridPos.x, chargeGridPos.y);
+        //     Vector3 force = new Vector3(fieldColor.r, fieldColor.g, 0);
+        //     charges[i].force += force;
+        // }
 
         // float energy = 0;
         // for (int px=0; px<gridSize.x; px++) {
